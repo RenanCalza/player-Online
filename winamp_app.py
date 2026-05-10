@@ -10,7 +10,7 @@ st.markdown('''<style>
 </style>''', unsafe_allow_html=True)
 
 
-#st.title("🎵 Calza-Player Online")
+st.title("🎵 Calza-Player - chupa Spotify 😁")
 #st.write("Conectado automaticamente à sua pasta do Drive!")
 
 API_KEY =st.secrets ["GOOGLE_API_KEY"]

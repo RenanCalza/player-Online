@@ -9,11 +9,10 @@ st.markdown('''<style>
 .main { background-color: #111; color: white; }
 </style>''', unsafe_allow_html=True)
 
+st.title("🎵Calza-Player - chupa spotify 😁")
+st.write("Conectado automaticamente à sua pasta do Drive!")
 
-st.title("🎵 Calza-Player - chupa Spotify 😁")
-#st.write("Conectado automaticamente à sua pasta do Drive!")
-
-API_KEY =st.secrets ["GOOGLE_API_KEY"]
+API_KEY = st.secrets["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"
 
 @st.cache_data(ttl=3600)
@@ -45,6 +44,7 @@ else:
     tracks_json = json.dumps(tracks)
 
     components.html(f"""
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
         body {{
@@ -52,6 +52,7 @@ else:
             color: #00ff99;
             font-family: 'Courier New', monospace;
             padding: 15px;
+            height: 100vh;
         }}
         #player {{
             background: linear-gradient(180deg, #3c3c5c, #1f1f35);
@@ -61,6 +62,9 @@ else:
             max-width: 500px;
             margin: auto;
             box-shadow: 0px 0px 20px #000;
+            display: flex;
+            flex-direction: column;
+            height: calc(100vh - 40px);
         }}
         #titulo {{
             font-size: 22px;
@@ -68,6 +72,7 @@ else:
             color: #00ff99;
             text-align: center;
             margin-bottom: 12px;
+            flex-shrink: 0;
         }}
         #track-name {{
             font-size: 12px;
@@ -77,6 +82,10 @@ else:
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+            flex-shrink: 0;
+        }}
+        #player-iframe {{
+            flex-shrink: 0;
         }}
         #player-iframe iframe {{
             width: 100%;
@@ -90,17 +99,19 @@ else:
             align-items: center;
             gap: 10px;
             margin-top: 12px;
+            flex-shrink: 0;
         }}
         .btn {{
             background: #2a2a4a;
             color: #00ff99;
             border: 1px solid #555;
             border-radius: 6px;
-            padding: 6px 14px;
+            padding: 8px 16px;
             cursor: pointer;
             font-family: 'Courier New', monospace;
-            font-size: 16px;
+            font-size: 18px;
             transition: background 0.2s;
+            touch-action: manipulation;
         }}
         .btn:hover {{ background: #444; }}
         .btn.active-btn {{
@@ -115,31 +126,33 @@ else:
             margin-top: 8px;
             font-size: 11px;
             color: #888;
+            flex-shrink: 0;
         }}
-        .status-on {{ color: #00ff99; }}
         #playlist {{
             background: black;
             color: #00ff99;
             padding: 10px;
             margin-top: 15px;
-            height: 350px;
+            flex-grow: 1;
             overflow-y: auto;
             border: 1px solid #444;
+            border-radius: 4px;
         }}
         .track-item {{
-            padding: 3px 5px;
+            padding: 6px 5px;
             cursor: pointer;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             border-radius: 3px;
+            touch-action: manipulation;
         }}
         .track-item:hover {{ background: #333; }}
         .track-item.active {{ color: white; background: #222; }}
     </style>
 
     <div id="player">
-        <div id="titulo">🎵 Renan Calza - ONLINE</div>
+        <div id="titulo">🎵 WINAMP ONLINE</div>
         <div id="track-name">Selecione uma música...</div>
         <div id="player-iframe"></div>
 
@@ -152,8 +165,8 @@ else:
         </div>
 
         <div id="status-bar">
-            <span id="lbl-shuffle">🔀 Aleatório: <span id="val-shuffle">OFF</span></span>
-            <span id="lbl-repeat">🔁 Repetir: <span id="val-repeat">OFF</span></span>
+            <span>🔀 <span id="val-shuffle">OFF</span></span>
+            <span>🔁 <span id="val-repeat">OFF</span></span>
             <span id="track-count"></span>
         </div>
 
@@ -165,7 +178,7 @@ else:
         let current = 0;
         let shuffle = false;
         let repeat = false;
-        let history = []; // histórico para o botão anterior no modo shuffle
+        let history = [];
 
         document.getElementById('track-count').innerText = `🎵 ${{tracks.length}} músicas`;
 
@@ -177,7 +190,6 @@ else:
             current = index;
             const track = tracks[index];
             document.getElementById('track-name').innerText = '▶️ ' + cleanName(track.name);
-
             document.getElementById('player-iframe').innerHTML = `
                 <iframe 
                     src="https://drive.google.com/file/d/${{track.id}}/preview"
@@ -186,7 +198,6 @@ else:
                     allow="autoplay"
                     style="border:none;">
                 </iframe>`;
-
             renderPlaylist();
         }}
 
@@ -214,18 +225,16 @@ else:
 
         function toggleShuffle() {{
             shuffle = !shuffle;
-            const btn = document.getElementById('btn-shuffle');
+            document.getElementById('btn-shuffle').classList.toggle('active-btn', shuffle);
             const val = document.getElementById('val-shuffle');
-            btn.classList.toggle('active-btn', shuffle);
             val.innerText = shuffle ? 'ON' : 'OFF';
             val.style.color = shuffle ? '#00ff99' : '#888';
         }}
 
         function toggleRepeat() {{
             repeat = !repeat;
-            const btn = document.getElementById('btn-repeat');
+            document.getElementById('btn-repeat').classList.toggle('active-btn', repeat);
             const val = document.getElementById('val-repeat');
-            btn.classList.toggle('active-btn', repeat);
             val.innerText = repeat ? 'ON' : 'OFF';
             val.style.color = repeat ? '#00ff99' : '#888';
         }}
@@ -245,9 +254,8 @@ else:
             if (active) active.scrollIntoView({{ block: 'nearest' }});
         }}
 
-        // Inicia na primeira faixa
         loadTrack(0);
     </script>
-    """, height=700)
+    """, height=800)
 
-#st.info("💡 Se a música demorar a carregar, é o Google Drive processando o link direto. Manda ver no play!"
+st.info("💡 Se a música demorar a carregar, é o Google Drive processando o link direto. Manda ver no play!")

@@ -3,7 +3,7 @@ import requests
 import streamlit.components.v1 as components
 import json
 
-st.set_page_config(page_title="Calza-Player", layout="wide")
+#st.set_page_config(page_title="Calza-Player", layout="wide")
 
 st.markdown('''<style>
 .main { background-color: #111; color: white; }

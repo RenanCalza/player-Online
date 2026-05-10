@@ -3,14 +3,15 @@ import requests
 import streamlit.components.v1 as components
 import json
 
-#st.set_page_config(page_title="Calza-Player", layout="wide")
+st.set_page_config(page_title="Calza-Player", layout="wide")
 
 st.markdown('''<style>
 .main { background-color: #111; color: white; }
 </style>''', unsafe_allow_html=True)
 
-st.title("🎵 Calza-Player Online")
-st.write("Conectado automaticamente à sua pasta do Drive!")
+
+#st.title("🎵 Calza-Player Online")
+#st.write("Conectado automaticamente à sua pasta do Drive!")
 
 API_KEY =st.secrets ["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"

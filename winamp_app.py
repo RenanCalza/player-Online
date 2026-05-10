@@ -249,4 +249,4 @@ else:
     </script>
     """, height=520)
 
-st.info("💡 Se a música demorar a carregar, é o Google Drive processando o link direto. Manda ver no play!")
+#st.info("💡 Se a música demorar a carregar, é o Google Drive processando o link direto. Manda ver no play!"

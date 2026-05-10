@@ -19,7 +19,7 @@ header {visibility: hidden;}
     max-width: 100% !important;
 }
 </style>''', unsafe_allow_html=True)
-
+st.title("🎵Calza-Player - chupa spotify 😁")
 API_KEY = st.secrets["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"
 
@@ -211,7 +211,7 @@ else:
     </style>
 
     <div id="player">
-        <div id="titulo">🎵 WINAMP ONLINE</div>
+        <div id="titulo">🎵 CALZA-PLAYER  - ONLINE</div>
         <div id="track-name">Carregando...</div>
         <div id="player-iframe"></div>
         <div id="progress-bar-container">

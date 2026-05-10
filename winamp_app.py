@@ -5,11 +5,10 @@ import json
 
 st.set_page_config(
     page_title="Calza-Player",
-    layout="centered",  # melhor para mobile
+    layout="centered",
     initial_sidebar_state="collapsed"
 )
 
-# Esconde elementos do Streamlit desnecessários no mobile
 st.markdown('''<style>
 #MainMenu {visibility: hidden;}
 footer {visibility: hidden;}
@@ -21,7 +20,6 @@ header {visibility: hidden;}
 }
 </style>''', unsafe_allow_html=True)
 st.title("🎵Calza-Player - chupa spotify 😁")
-
 API_KEY = st.secrets["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"
 
@@ -34,7 +32,7 @@ def fetch_playlist(folder_id, api_key):
             url = "https://www.googleapis.com/drive/v3/files"
             params = {
                 "q": f"'{folder_id}' in parents and trashed=false and (mimeType='audio/mpeg' or mimeType='audio/wav' or mimeType='audio/ogg')",
-                "fields": "nextPageToken, files(id, name)",
+                "fields": "nextPageToken, files(id, name, videoMediaMetadata)",
                 "key": api_key,
                 "pageSize": 100,
                 "orderBy": "name"
@@ -60,29 +58,32 @@ playlist = fetch_playlist(FOLDER_ID, API_KEY)
 if not playlist:
     st.error("⚠️ Não encontrei músicas.")
 else:
-    tracks = [{"id": f["id"], "name": f["name"]} for f in playlist]
+    tracks = [
+        {
+            "id": f["id"],
+            "name": f["name"],
+            "duration": int(f.get("videoMediaMetadata", {}).get("durationMillis", 240000)) // 1000
+        }
+        for f in playlist
+    ]
     tracks_json = json.dumps(tracks)
 
     components.html(f"""
     <!DOCTYPE html>
     <html>
     <head>
-        <!-- Zoom com dois dedos liberado, escala inicial 1:1 no celular -->
         <meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=0.5, maximum-scale=4.0, user-scalable=yes">
     </head>
     <body>
     <style>
         * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-
         html, body {{
             background: #1f1f35;
             color: #00ff99;
             font-family: 'Courier New', monospace;
             height: 100%;
-            /* Permite pinch-zoom na página toda */
             touch-action: pan-x pan-y pinch-zoom;
         }}
-
         #player {{
             background: linear-gradient(180deg, #3c3c5c, #1f1f35);
             border: 3px solid #888;
@@ -94,7 +95,6 @@ else:
             flex-direction: column;
             box-shadow: 0px 0px 20px #000;
         }}
-
         #titulo {{
             font-size: 20px;
             font-weight: bold;
@@ -103,7 +103,6 @@ else:
             margin-bottom: 10px;
             flex-shrink: 0;
         }}
-
         #track-name {{
             font-size: 13px;
             color: #ccc;
@@ -114,10 +113,7 @@ else:
             text-overflow: ellipsis;
             flex-shrink: 0;
         }}
-
-        #player-iframe {{
-            flex-shrink: 0;
-        }}
+        #player-iframe {{ flex-shrink: 0; }}
         #player-iframe iframe {{
             width: 100%;
             height: 80px;
@@ -125,7 +121,29 @@ else:
             display: block;
             border-radius: 6px;
         }}
-
+        #progress-bar-container {{
+            width: 100%;
+            height: 4px;
+            background: #333;
+            border-radius: 2px;
+            margin-top: 6px;
+            flex-shrink: 0;
+            overflow: hidden;
+        }}
+        #progress-bar {{
+            height: 4px;
+            background: #00ff99;
+            width: 0%;
+            transition: width 1s linear;
+            border-radius: 2px;
+        }}
+        #timer-label {{
+            font-size: 10px;
+            color: #555;
+            text-align: right;
+            margin-top: 3px;
+            flex-shrink: 0;
+        }}
         #controls {{
             display: flex;
             justify-content: center;
@@ -134,7 +152,6 @@ else:
             margin-top: 10px;
             flex-shrink: 0;
         }}
-
         .btn {{
             background: #2a2a4a;
             color: #00ff99;
@@ -143,7 +160,6 @@ else:
             padding: 10px 16px;
             cursor: pointer;
             font-size: 20px;
-            /* Toque mais responsivo no mobile */
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
             transition: background 0.15s;
@@ -155,7 +171,6 @@ else:
             color: #111;
             border-color: #00ff99;
         }}
-
         #status-bar {{
             display: flex;
             justify-content: center;
@@ -165,15 +180,6 @@ else:
             color: #888;
             flex-shrink: 0;
         }}
-
-        #autoplay-tip {{
-            font-size: 10px;
-            color: #555;
-            text-align: center;
-            margin-top: 5px;
-            flex-shrink: 0;
-        }}
-
         #playlist {{
             background: black;
             color: #00ff99;
@@ -183,10 +189,8 @@ else:
             overflow-y: auto;
             border: 1px solid #444;
             border-radius: 6px;
-            /* Scroll suave no iOS */
             -webkit-overflow-scrolling: touch;
         }}
-
         .track-item {{
             padding: 9px 6px;
             cursor: pointer;
@@ -195,7 +199,6 @@ else:
             text-overflow: ellipsis;
             border-radius: 4px;
             font-size: 13px;
-            /* Toque preciso no mobile */
             touch-action: manipulation;
             -webkit-tap-highlight-color: transparent;
             user-select: none;
@@ -209,8 +212,12 @@ else:
 
     <div id="player">
         <div id="titulo">🎵 WINAMP ONLINE</div>
-        <div id="track-name">Selecione uma música...</div>
+        <div id="track-name">Carregando...</div>
         <div id="player-iframe"></div>
+        <div id="progress-bar-container">
+            <div id="progress-bar"></div>
+        </div>
+        <div id="timer-label">--:-- / --:--</div>
 
         <div id="controls">
             <button class="btn" onclick="prevTrack()">⏮</button>
@@ -226,8 +233,6 @@ else:
             <span id="track-count"></span>
         </div>
 
-        <div id="autoplay-tip">▶️ Após selecionar, clique em play no player acima</div>
-
         <div id="playlist"></div>
     </div>
 
@@ -237,11 +242,39 @@ else:
         let shuffle = false;
         let repeat = false;
         let history = [];
+        let timerInterval = null;
+        let elapsedSeconds = 0;
 
         document.getElementById('track-count').innerText = `🎵 ${{tracks.length}} músicas`;
 
         function cleanName(name) {{
             return name.replace(/\.(mp3|wav|ogg)$/i, '');
+        }}
+
+        function formatTime(seconds) {{
+            const m = Math.floor(seconds / 60).toString().padStart(2, '0');
+            const s = (seconds % 60).toString().padStart(2, '0');
+            return `${{m}}:${{s}}`;
+        }}
+
+        function startTimer(duration) {{
+            clearInterval(timerInterval);
+            elapsedSeconds = 0;
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('timer-label').innerText = `00:00 / ${{formatTime(duration)}}`;
+
+            timerInterval = setInterval(() => {{
+                elapsedSeconds++;
+                const pct = Math.min((elapsedSeconds / duration) * 100, 100);
+                document.getElementById('progress-bar').style.width = pct + '%';
+                document.getElementById('timer-label').innerText =
+                    `${{formatTime(elapsedSeconds)}} / ${{formatTime(duration)}}`;
+
+                if (elapsedSeconds >= duration) {{
+                    clearInterval(timerInterval);
+                    nextTrack();
+                }}
+            }}, 1000);
         }}
 
         function loadTrack(index) {{
@@ -250,12 +283,14 @@ else:
             document.getElementById('track-name').innerText = '▶️ ' + cleanName(track.name);
             document.getElementById('player-iframe').innerHTML = `
                 <iframe
-                    src="https://drive.google.com/file/d/${{track.id}}/preview"
+                    src="https://drive.google.com/file/d/${{track.id}}/preview?autoplay=1"
                     width="100%"
                     height="80"
                     allow="autoplay"
                     style="border:none; border-radius:6px;">
                 </iframe>`;
+
+            startTimer(track.duration);
             renderPlaylist();
         }}
 
@@ -274,6 +309,7 @@ else:
         }}
 
         function prevTrack() {{
+            clearInterval(timerInterval);
             if (history.length > 0) {{
                 loadTrack(history.pop());
             }} else {{
@@ -304,7 +340,8 @@ else:
                 const div = document.createElement('div');
                 div.className = 'track-item' + (i === current ? ' active' : '');
                 const num = String(i + 1).padStart(2, '0');
-                div.innerText = (i === current ? '▶️ ' : '    ') + num + '. ' + cleanName(t.name);
+                const dur = formatTime(t.duration);
+                div.innerText = (i === current ? '▶️ ' : '    ') + num + '. ' + cleanName(t.name) + '  [' + dur + ']';
                 div.onclick = () => {{ history.push(current); loadTrack(i); }};
                 container.appendChild(div);
             }});

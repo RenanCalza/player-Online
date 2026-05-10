@@ -121,7 +121,7 @@ else:
             color: #00ff99;
             padding: 10px;
             margin-top: 15px;
-            height: 200px;
+            height: 350px;
             overflow-y: auto;
             border: 1px solid #444;
         }}
@@ -247,6 +247,6 @@ else:
         // Inicia na primeira faixa
         loadTrack(0);
     </script>
-    """, height=520)
+    """, height=700)
 
 #st.info("💡 Se a música demorar a carregar, é o Google Drive processando o link direto. Manda ver no play!"

@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 import json
 
 st.set_page_config(
-    page_title="Darling-Player",
+    page_title="🎵 Darling-Player 🎵",
     layout="centered",
     initial_sidebar_state="collapsed"
 )

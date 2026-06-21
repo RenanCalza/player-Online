@@ -20,7 +20,6 @@ header {visibility: hidden;}
 }
 </style>''', unsafe_allow_html=True)
 st.title("🎵Darling-Player🎵")
-st.subtitle("By: Renan Calza")
 API_KEY = st.secrets["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"
 
@@ -212,7 +211,7 @@ else:
     </style>
 
     <div id="player">
-        <div id="titulo">🎵 CALZA-PLAYER  - ONLINE</div>
+        <div id="titulo">🎵 By: Renan Calza 🎵  - ONLINE</div>
         <div id="track-name">Carregando...</div>
         <div id="player-iframe"></div>
         <div id="progress-bar-container">

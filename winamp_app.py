@@ -4,7 +4,7 @@ import streamlit.components.v1 as components
 import json
 
 st.set_page_config(
-    page_title="🎵 Darling-Player 🎵",
+    page_title="🎵Darling-Player🎵",
     layout="centered",
     initial_sidebar_state="collapsed"
 )
@@ -19,7 +19,8 @@ header {visibility: hidden;}
     max-width: 100% !important;
 }
 </style>''', unsafe_allow_html=True)
-st.title("🎵Darling-Player - ")
+st.title("🎵Darling-Player🎵")
+st.subtitle("By: Renan Calza")
 API_KEY = st.secrets["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"
 

@@ -19,7 +19,7 @@ header {visibility: hidden;}
     max-width: 100% !important;
 }
 </style>''', unsafe_allow_html=True)
-st.title("🎵Darling-Player🎵")
+st.title("🎵Darling-Player Classic🎵")
 API_KEY = st.secrets["GOOGLE_API_KEY"]
 FOLDER_ID = "1Xsvld85uv2nvUjg2xzfoeX17xIPGVTZu"
 
